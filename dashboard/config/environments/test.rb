@@ -95,4 +95,7 @@ Dashboard::Application.configure do
   # Whether or not to skip script preloading. Setting this to true
   # significantly speeds up server startup time.
   config.skip_script_preload = false
+
+  # Log asset precompilation
+  config.assets.logger = Logger.new $stdout
 end
