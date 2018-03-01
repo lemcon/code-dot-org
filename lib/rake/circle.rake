@@ -175,7 +175,7 @@ namespace :circle do
 
     system 'rm', '-rf', dashboard_dir('tmp', 'cache', 'assets')
     Dir.chdir(dashboard_dir) do
-      RakeUtils.rake 'assets:precompile'
+      RakeUtils.rake 'assets:precompile', '--trace'
     end
   end
 end
