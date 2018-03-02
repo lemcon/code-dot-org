@@ -132,10 +132,10 @@ jobs:
             bundle exec rake firebase:ci
             bundle exec rake circle:check_for_unexpected_apps_changes
 
-      - run:
-          name: unit tests
-          command: bundle exec rake circle:run_tests --trace
-          no_output_timeout: 40m
+#      - run:
+#          name: unit tests
+#          command: bundle exec rake circle:run_tests --trace
+#          no_output_timeout: 40m
 
       - run:
           name: apply test settings for after unit tests
@@ -156,7 +156,7 @@ jobs:
 
       - run:
           name: seed ui tests
-          command: bundle exec rake circle:seed_ui_test
+          command: bundle exec rake circle:seed_ui_test RAKE_VERBOSE=1
           no_output_timeout: 20m
 
       - save_cache:
@@ -165,12 +165,12 @@ jobs:
             - "dashboard/db/ui_test_data.commit"
             - "dashboard/db/ui_test_data.sql"
 
-      - run:
-          name: run ui tests
-          command: |
-            bundle exec rake circle:run_ui_tests --trace
-            cookbooks/test.sh
-          no_output_timeout: 20m
+#      - run:
+#          name: run ui tests
+#          command: |
+#            bundle exec rake circle:run_ui_tests --trace
+#            cookbooks/test.sh
+#          no_output_timeout: 20m
 
       - run:
           name: deployment
