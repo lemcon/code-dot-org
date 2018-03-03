@@ -152,7 +152,7 @@ GIT
 
 GIT
   remote: https://github.com/wjordan/sprockets.git
-  revision: 500d8a02fe7db3a54fb915b3cad425cfdd380cbc
+  revision: 307933e186791f2f4a32c14deb9bd1607b0b44f8
   ref: concurrent_asset_bundle_3.x
   specs:
     sprockets (3.7.1)
