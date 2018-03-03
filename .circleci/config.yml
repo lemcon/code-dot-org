@@ -132,10 +132,10 @@ jobs:
             bundle exec rake firebase:ci
             bundle exec rake circle:check_for_unexpected_apps_changes
 
-#      - run:
-#          name: unit tests
-#          command: bundle exec rake circle:run_tests --trace
-#          no_output_timeout: 40m
+      - run:
+          name: unit tests
+          command: bundle exec rake circle:run_tests --trace
+          no_output_timeout: 40m
 
       - run:
           name: apply test settings for after unit tests
@@ -154,10 +154,10 @@ jobs:
             - code-dot-org-ui-test-data-v3-staging-
             - code-dot-org-ui-test-data-v3-
 
-#      - run:
-#          name: seed ui tests
-#          command: bundle exec rake circle:seed_ui_test RAKE_VERBOSE=1
-#          no_output_timeout: 20m
+      - run:
+          name: seed ui tests
+          command: bundle exec rake circle:seed_ui_test
+          no_output_timeout: 20m
 
       - save_cache:
           key: code-dot-org-ui-test-data-v3-{{ .Branch }}-{{ .Revision }}
@@ -166,8 +166,10 @@ jobs:
             - "dashboard/db/ui_test_data.sql"
 
       - run:
-          name: recompile assets
-          command: bundle exec rake circle:recompile_assets --trace RAKE_VERBOSE=1
+          name: run ui tests
+          command: |
+            bundle exec rake circle:run_ui_tests --trace
+            cookbooks/test.sh
           no_output_timeout: 20m
 
       - run:
