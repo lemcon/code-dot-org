@@ -284,7 +284,7 @@ class Documents < Sinatra::Base
     def document(path)
       content = IO.read(path)
       original_line_count = content.lines.count
-      match = content.match(/^(?<yaml>---\s*\n.*?\n?)^(---\s*$\n?)/m)
+      match = content.match(/\A(?<yaml>---\s*\n.*?\n?)^(---\s*$\n?)/m)
       if match
         @header = @locals[:header] = YAML.load(render_(match[:yaml], '.erb'))
         content = match.post_match
@@ -370,6 +370,22 @@ class Documents < Sinatra::Base
       nil
     end
 
+    def all_documents(dirs=nil)
+      dirs ||= Dir.children(content_dir).select {|file| Dir.exist?(content_dir(file))}
+      dirs.map do |dir|
+        (settings.template_extnames - ['.fetch']).map do |ext|
+          public = content_dir(dir, 'public')
+          Dir.glob("#{public}/**/*#{ext}").map do |file|
+            # Reduce file to URI.
+            uri = file.
+              sub(public, '').
+              sub(/#{File.extname(file)}$/, '')
+            {site: dir, uri: uri}
+          end
+        end
+      end.flatten
+    end
+
     def resolve_document(uri)
       extnames = settings.non_static_extnames
 
@@ -379,6 +395,8 @@ class Documents < Sinatra::Base
       path = resolve_template('public', extnames, File.join(uri, 'index'))
       return path if path
 
+      # Recursively resolve '/splat.[ext]' template from the given URI.
+      # env[:splat_path_info] contains the path_info following the splat template's folder.
       at = uri
       while at != '/'
         parent = File.dirname(at)
