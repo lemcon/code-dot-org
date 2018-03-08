@@ -178,7 +178,7 @@ class Documents < Sinatra::Base
 
   # Static files
   get '*' do |uri|
-    pass unless path = resolve_static('public', uri)
+    pass unless (path = resolve_static('public', uri))
     cache :static
     NewRelic::Agent.set_transaction_name(uri) if defined? NewRelic
     send_file(path)
