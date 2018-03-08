@@ -20,6 +20,7 @@ require 'cdo/rack/upgrade_insecure_requests'
 require_relative 'helper_modules/dashboard'
 require 'dynamic_config/dcdo'
 require 'active_support/core_ext/hash'
+require 'active_support/core_ext/numeric/time'
 require 'sass'
 require 'sass/plugin'
 
@@ -80,8 +81,6 @@ class Documents < Sinatra::Base
     set "#{type}_max_age", proc {DCDO.get("pegasus_#{type}_max_age", default)}
   end
 
-  ONE_HOUR = 3600
-
   configure do
     dir = pegasus_dir('sites.v3')
     set :launched_at, Time.now
@@ -89,12 +88,12 @@ class Documents < Sinatra::Base
     set :views, dir
     set :image_extnames, ['.png', '.jpeg', '.jpg', '.gif']
     set :exclude_extnames, ['.collate']
-    set_max_age :document, ONE_HOUR * 4
-    set_max_age :document_proxy, ONE_HOUR * 2
-    set_max_age :image, ONE_HOUR * 10
-    set_max_age :image_proxy, ONE_HOUR * 5
-    set_max_age :static, ONE_HOUR * 10
-    set_max_age :static_proxy, ONE_HOUR * 5
+    set_max_age :document, 4.hours
+    set_max_age :document_proxy, 2.hours
+    set_max_age :image, 10.hours
+    set_max_age :image_proxy, 5.hours
+    set_max_age :static, 10.hours
+    set_max_age :static_proxy, 5.hours
     set :read_only, CDO.read_only
     set :not_found_extnames, ['.not_found', '.404']
     set :redirect_extnames, ['.redirect', '.moved', '.found', '.301', '.302']
