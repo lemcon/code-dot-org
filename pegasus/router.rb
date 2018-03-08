@@ -100,7 +100,13 @@ class Documents < Sinatra::Base
     set :redirect_extnames, ['.redirect', '.moved', '.found', '.301', '.302']
     set :template_extnames, ['.erb', '.fetch', '.haml', '.html', '.md', '.txt']
     set :non_static_extnames, settings.not_found_extnames + settings.redirect_extnames + settings.template_extnames + settings.exclude_extnames
-    set :markdown, {autolink: true, tables: true, space_after_headers: true, fenced_code_blocks: true}
+    set :markdown, {
+      autolink: true,
+      tables: true,
+      space_after_headers: true,
+      fenced_code_blocks: true,
+      lax_spacing: true
+    }
     Sass::Plugin.options[:cache_location] = pegasus_dir('cache', '.sass-cache')
     Sass::Plugin.options[:css_location] = pegasus_dir('cache', 'css')
     Sass::Plugin.options[:template_location] = shared_dir('css')
@@ -450,7 +456,7 @@ class Documents < Sinatra::Base
       when '.md', '.txt'
         preprocessed = erb body, locals: locals
         preprocessed = preprocess_markdown preprocessed
-        html = markdown preprocessed, lax_spacing: true, locals: locals
+        html = markdown preprocessed, locals: locals
         post_process_html_from_markdown html
       when '.redirect', '.moved', '.301'
         redirect erb(body, locals: locals), 301
