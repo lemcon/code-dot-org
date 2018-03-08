@@ -372,18 +372,22 @@ class Documents < Sinatra::Base
 
     def all_documents(dirs=nil)
       dirs ||= Dir.children(content_dir).select {|file| Dir.exist?(content_dir(file))}
-      dirs.map do |dir|
+      dirs.map do |site|
         (settings.template_extnames - ['.fetch']).map do |ext|
-          public = content_dir(dir, 'public')
+          public = content_dir(site, 'public')
           Dir.glob("#{public}/**/*#{ext}").map do |file|
             # Reduce file to URI.
             uri = file.
               sub(public, '').
-              sub(/#{File.extname(file)}$/, '')
-            {site: dir, uri: uri}
+              sub(/#{File.extname(file)}$/, '').
+              sub(/\/index$/, '')
+            next if uri.start_with?('/private')
+            uri.prepend('/us') if site == 'hourofcode.com'
+            site = 'italia.code.org' if site == 'i18n.code.org'
+            {site: site, uri: uri}
           end
         end
-      end.flatten
+      end.flatten.compact
     end
 
     def resolve_document(uri)
