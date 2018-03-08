@@ -101,7 +101,7 @@ class Documents < Sinatra::Base
     set :template_extnames, ['.erb', '.fetch', '.haml', '.html', '.md', '.txt']
     set :non_static_extnames, settings.not_found_extnames + settings.redirect_extnames + settings.template_extnames + settings.exclude_extnames
     set :markdown,
-      renderer: ::Redcarpet::Render::HTML.new,
+      renderer: ::TextRender::MarkdownEngine::HTMLWithTags,
       autolink: true,
       tables: true,
       space_after_headers: true,
@@ -325,24 +325,6 @@ class Documents < Sinatra::Base
       markdown_content.gsub(/```/, "```\n")
     end
 
-    def post_process_html_from_markdown(full_document)
-      full_document.gsub!(/<p>\[\/(.*)\]<\/p>/) do
-        "</div>"
-      end
-      full_document.gsub!(/<p>\[(.*)\]<\/p>/) do
-        value = $1
-        if value[0] == '#'
-          attribute = 'id'
-          value = value[1..-1]
-        else
-          attribute = 'class'
-        end
-
-        "<div #{attribute}='#{value}'>"
-      end
-      full_document
-    end
-
     def log_drupal_link(dir, uri, path)
       if dir == 'drupal.code.org'
         Honeybadger.notify(
@@ -456,8 +438,7 @@ class Documents < Sinatra::Base
       when '.md', '.txt'
         preprocessed = erb body, locals: locals
         preprocessed = preprocess_markdown preprocessed
-        html = markdown preprocessed, locals: locals
-        post_process_html_from_markdown html
+        markdown preprocessed, locals: locals
       when '.redirect', '.moved', '.301'
         redirect erb(body, locals: locals), 301
       when '.found', '.302'

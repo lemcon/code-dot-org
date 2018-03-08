@@ -20,6 +20,7 @@ class HamlTest < Minitest::Test
     path = '/div_brackets'
     resp = get(path)
     assert_equal 200, resp.status, path
-    assert_match '<div class="col-50">', resp.body
+    assert_match '<div class="class">', resp.body
+    assert_match '<div id="id">', resp.body
   end
 end

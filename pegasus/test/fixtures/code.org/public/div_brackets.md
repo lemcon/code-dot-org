@@ -1,7 +1,11 @@
 ### HELLO
 
-[col-50]
+[class]
+
+[#id]
 
 Testing div-brackets.
 
-[/col-50]
+[/#id]
+
+[/class]
