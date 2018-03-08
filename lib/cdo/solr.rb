@@ -56,6 +56,9 @@ module Solr
         raise response.body unless response.code == '200'
         response = JSON.parse(response.body)['response']
         [response['start'].to_i, response['numFound'].to_i, response['docs']]
+      rescue
+        raise unless rack_env?(:development, :test)
+        [0, 0, []]
       end
     end
   end
