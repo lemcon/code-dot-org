@@ -16,8 +16,8 @@ class HamlTest < Minitest::Test
     TestDocuments.new
   end
 
-  def test_markdown
-    path = '/challenge'
+  def test_div_brackets
+    path = '/div_brackets'
     resp = get(path)
     assert_equal 200, resp.status, path
     assert_match '<div class="col-50">', resp.body
