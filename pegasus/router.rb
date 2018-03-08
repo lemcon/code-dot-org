@@ -100,13 +100,13 @@ class Documents < Sinatra::Base
     set :redirect_extnames, ['.redirect', '.moved', '.found', '.301', '.302']
     set :template_extnames, ['.erb', '.fetch', '.haml', '.html', '.md', '.txt']
     set :non_static_extnames, settings.not_found_extnames + settings.redirect_extnames + settings.template_extnames + settings.exclude_extnames
-    set :markdown, renderer: ::Redcarpet::Render::HTML.new(
+    set :markdown,
+      renderer: ::Redcarpet::Render::HTML.new,
       autolink: true,
       tables: true,
       space_after_headers: true,
       fenced_code_blocks: true,
       lax_spacing: true
-    )
     Sass::Plugin.options[:cache_location] = pegasus_dir('cache', '.sass-cache')
     Sass::Plugin.options[:css_location] = pegasus_dir('cache', 'css')
     Sass::Plugin.options[:template_location] = shared_dir('css')
