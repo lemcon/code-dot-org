@@ -110,6 +110,10 @@ class Documents < Sinatra::Base
     Sass::Plugin.options[:css_location] = pegasus_dir('cache', 'css')
     Sass::Plugin.options[:template_location] = shared_dir('css')
     set :mustermann_opts, check_anchors: false, ignore_unknown_options: true
+
+    # Haml/Temple engine doesn't recognize the `path` option
+    # which is used by Sinatra/Tilt for correct template backtraces.
+    Haml::TempleEngine.disable_option_validator!
   end
 
   before do
@@ -287,15 +291,16 @@ class Documents < Sinatra::Base
       match = content.match(/\A(?<yaml>---\s*\n.*?\n?)^(---\s*$\n?)/m)
       if match
         begin
-          yaml = render_(match[:yaml], '.erb')
-          @header = @locals[:header] = YAML.load(yaml)
+          yaml = render_(match[:yaml], '.erb', path, 1)
+          @header = @locals[:header] = YAML.load(yaml, path) || {}
         rescue => e
-          e.message += "\n#{yaml}"
+          # Append rendered header to error message.
+          e.message << "\n#{yaml}" if yaml
           raise
         end
         content = match.post_match
       end
-      line_number_offset = content.lines.count - original_line_count
+      line = original_line_count - content.lines.count + 1
       @header['social'] = social_metadata
 
       if @header['require_https'] && rack_env == :production
@@ -315,17 +320,12 @@ class Documents < Sinatra::Base
       end
 
       response.headers['X-Pegasus-Version'] = '3'
-      begin
-        render_(content, File.extname(path))
-      rescue Haml::Error => e
-        if e.backtrace.first =~ /router\.rb:/ && e.line
-          actual_line_number = e.line - line_number_offset + 1
-          e.set_backtrace e.backtrace.unshift("#{path}:#{actual_line_number}")
-        end
-        raise e
-      end
+      render_(content, File.extname(path), path, line)
     rescue => e
-      e.set_backtrace e.backtrace.unshift(path)
+      # Add document path to backtrace if not already included.
+      unless [e.message, *e.backtrace].any? {|location| location.include?(path)}
+        e.set_backtrace e.backtrace.unshift(path)
+      end
       raise
     end
 
@@ -443,7 +443,7 @@ class Documents < Sinatra::Base
     end
 
     def render_template(path, locals={})
-      render_(IO.read(path), File.extname(path), locals)
+      render_(IO.read(path), File.extname(path), path, 0, locals)
     rescue Haml::Error => e
       if e.backtrace.first =~ /router\.rb:/
         e.set_backtrace e.backtrace.unshift("#{path}:#{e.line}")
@@ -454,15 +454,17 @@ class Documents < Sinatra::Base
       raise "Error rendering #{path}: #{e}"
     end
 
-    def render_(body, extname, locals={})
+    def render_(body, extname, path=nil, line=0, locals={})
       locals = @locals.merge(locals).symbolize_keys
+      options = {locals: locals, line: line, path: path}
+
       case extname
       when '.erb', '.html'
-        erb body, locals: locals
+        erb body, options
       when '.haml'
-        haml body, locals: locals
+        haml body, options
       when '.fetch'
-        url = erb(body, locals: locals)
+        url = erb(body, options)
 
         cache_file = cache_dir('fetch', request.site, request.path_info)
         unless File.file?(cache_file) && File.mtime(cache_file) > settings.launched_at
@@ -474,13 +476,13 @@ class Documents < Sinatra::Base
         cache :static
         send_file(cache_file)
       when '.md', '.txt'
-        preprocessed = erb body, locals: locals
+        preprocessed = erb body, options
         preprocessed = preprocess_markdown preprocessed
-        markdown preprocessed, locals: locals
+        markdown preprocessed, options
       when '.redirect', '.moved', '.301'
-        redirect erb(body, locals: locals), 301
+        redirect erb(body, options), 301
       when '.found', '.302'
-        redirect erb(body, locals: locals), 302
+        redirect erb(body, options), 302
       else
         raise "'#{extname}' isn't supported."
       end
