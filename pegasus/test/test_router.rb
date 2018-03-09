@@ -38,11 +38,12 @@ class PegasusTest < Minitest::Test
     Documents.new
   end
 
-  def test_pegasus
+  def test_pegasus_documents
     documents = Documents.new.helpers.all_documents.map do |page|
       "#{page[:site]}#{page[:uri]}"
     end
-    puts documents
+    CDO.log.info "Found #{documents.length} Pegasus documents."
+    assert_operator documents.length, :>, 2000
   end
 
   # All pages should return 200 status-code, with the following exceptions:
