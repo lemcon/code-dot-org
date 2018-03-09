@@ -22,12 +22,12 @@ class RouterTest < Minitest::Test
     path = '/div_brackets'
     resp = get(path)
     assert_equal 200, resp.status, path
-    assert_match '<div class="class">', resp.body
-    assert_match '<div id="id">', resp.body
+    assert_match "<div class='class'>", resp.body
+    assert_match "<div id='id'>", resp.body
   end
 
   def test_all_documents
-    assert_includes app.helpers.all_documents, '/div_brackets'
+    assert_includes app.helpers.all_documents, {site: 'code.org', uri: '/div_brackets'}
   end
 end
 
