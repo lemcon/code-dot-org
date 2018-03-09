@@ -155,13 +155,18 @@ class Slack
   # Slack in the browser, e.g https://codedotorg.slack.com/messages/<channel_id>
   # @param command [String] Command to execute, excluding the /.
   # @param message [String] Optional text passed to the command.
+  # @return [Boolean] Whether the command was posted to Slack successfully.
   def self.command(channel_id, command, message="")
-    open(
+    response = open(
       "https://slack.com/api/chat.command?channel=#{channel_id}"\
       "&command=/#{command}"\
       "&text=#{message}"\
       "&token=#{SLACK_TOKEN}"
     )
+
+    result = JSON.parse(response.read)
+    raise "Failed to post command with: #{result['error']}" if result['error']
+    result['ok']
   end
 
   def self.snippet(room, text)
