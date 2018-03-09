@@ -1,4 +1,4 @@
-#Courses A & B Markdown
+# Courses A & B Markdown
 
 Need to work on sizing, but relative text size is how I want it for now
 
@@ -14,9 +14,11 @@ Need to work on sizing, but relative text size is how I want it for now
 
 Today you will learn how to move blocks! See if you can put them in the right order!
 
-####Blocks to Know
+#### Blocks to Know
 
+```
 <gif>Moving blocks around into right order</gif>
+```
 
 ---
 
@@ -58,7 +60,9 @@ The best part is- it will listen to you!
 
 #### Blocks to Know
 
+```
 <xml>N, S, E, or W,  under when run</xml>
+```
 
 ---
 
@@ -92,7 +96,9 @@ Today you will learn how to do that!
 
 #### Blocks to Know
 
+```
 <xml>repeat 5 block with get gem inside</xml>
+```
 
 ------
 
@@ -132,9 +138,11 @@ Get ready to learn!
 
 #### Blocks to Know
 
+```
 <xml>When click dragon</xml> 
 
 <xml>When dragon touch warrior?</xml>
+```
 
 ---
 

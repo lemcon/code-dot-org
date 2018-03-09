@@ -42,7 +42,9 @@ Today, you'll be telling a machine what to do, step by step- and it will listen!
 
 #### Blocks to Know
 
+```
 <xml>when run</xml><xml>move forward</xml>
+```
 
 ------
 
@@ -82,7 +84,9 @@ What if you wanted to make different code run when something new happens? Let's 
 
 #### Blocks to Know
 
+```
 <xml>When left arrow</xml> <xml>When actor 1 touches actor 2</xml>
+```
 
 ------
 
@@ -120,7 +124,9 @@ You will learn an easy way to do this!
 
 #### Blocks to Know
 
+```
 <xml>repeat ??? times</xml>
+```
 
 ------
 
@@ -204,7 +210,9 @@ Today you will learn how to use this idea in your programs!
 
 #### Blocks to Know
 
+```
 <xml>While there is a pile</xml> or <xml>While path ahead</xml>
+```
 
 ---
 
@@ -242,9 +250,11 @@ Let's get started!
 
 #### Blocks to Know
 
+```
 <xml> If at flower </xml>
 
 <xml>While path ahead</xml>
+```
 
 ------
 

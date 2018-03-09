@@ -40,7 +40,9 @@ Today, you'll be telling a machine what to do, step by step- and it will listen!
 
 #### Blocks to Know
 
+```
 <xml>when run</xml><xml>move forward</xml>
+```
 
 ------
 
@@ -132,7 +134,9 @@ Wish there was an easy way to do this? There is!
 
 #### Blocks to Know
 
+```
 <xml>repeat ??? times</xml>
+```
 
 ------
 
@@ -178,7 +182,9 @@ If a normal loop is good at repeating patterns, what do you think a loop inside 
 
 #### Blocks to Know
 
+```
 <gif>Repeat 4 times, repeat move forward 10 times, turn right (gif of it running so you can see the yellow highlight moving to show order of execution)</gif>
+```
 
 ------
 
@@ -214,7 +220,9 @@ You can use this idea in computer science too! Let's get started!
 
 #### Blocks to Know
 
+```
 <xml> While there is lettuce </xml> </xml> Repeat until there is lettuce </xml>
+```
 
 ------
 

@@ -1,8 +1,8 @@
-#Course F Markdown 
+# Course F Markdown 
 
 ### Markdown for embedded artist
 
-####Ready... Set... Draw!
+#### Ready... Set... Draw!
 
 Here's an example of a drawing that you're about to create yourself! 
 
@@ -16,7 +16,7 @@ Run through it one or two times so that you know what to expect.
 
 ### Markdown for embedded Play Lab
 
-####Ready... Set... Play!
+#### Ready... Set... Play!
 
 Here's an example of a game that you're about to create yourself! 
 
@@ -44,7 +44,9 @@ Today, you'll be telling a machine what to do, step by step- and it will listen!
 
 #### Blocks to Know
 
+```
 <xml>when run</xml><xml>move forward</xml>
+```
 
 -----
 
@@ -136,7 +138,9 @@ Wish there was an easy way to do this? There is!
 
 ####Blocks to Know
 
+```
 <xml>repeat ??? times</xml>
+```
 
 ----
 
@@ -182,7 +186,9 @@ If a normal loop is good at repeating patterns, what do you think a loop inside 
 
 #### Blocks to Know
 
+```
 <gif>Repeat 4 times, repeat move forward 10 times, turn right (gif of it running so you can see the yellow highlight moving to show order of execution)</gif>
+```
 
 ---
 
@@ -222,7 +228,9 @@ What if you wanted to make different code run when something new happens, just l
 
 #### Blocks to Know
 
+```
 <xml>When left arrow</xml> <xml>When actor 1 touches actor 2</xml>
+```
 
 ---
 
@@ -260,7 +268,9 @@ The possibilities are endless! Let's get started!
 
 ####Blocks to Know
 
+```
 <xml> If lava ahead </xml>
+```
 
 ---
 
@@ -302,9 +312,11 @@ If we have a way to tell the program to always add the first number to the secon
 
 #### Blocks to Know
 
+```
 <xml>Set number1 to 5</xml><xml>Set number2 to 3</xml>
 
 <xml>number1 + number2</xml>
+```
 
 ---
 
@@ -344,7 +356,9 @@ Today you'll be learning about a new kind of `repeat` loop. Here is a preview of
 
 *For*tunately, this new loop will make solving puzzles like this really easy!
 
+```
 <screengrab or gif>https://studio.code.org/s/coursef/stage/19/puzzle/5 puzzle </gif>
+```
 
 ---
 
@@ -388,9 +402,11 @@ Then, you can use this new block wherever you want, however many times you want!
 
 ####Blocks to Know
 
+```
 <xml> gray function box with green "do something" function inside, "move forward 5 times" block inside that </xml>
 
 <xml> single green "do something" block in between turn left and turn right blocks</xml>
+```
 
 ---
 
@@ -434,11 +450,15 @@ Right now, you would have to make a separate function for each different colored
 
 Function editor
 
+```
 <gif> function editor opening with draw triangle, color parameter </gif>
+```
 
 New function block
 
+```
 <gif> green draw triangle function block with color block being passed in</gif>
+```
 
 ---
 
