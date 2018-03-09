@@ -54,7 +54,7 @@ jobs:
           command: |
             sudo mv /usr/bin/parallel /usr/bin/gnu_parallel
             sudo apt-get update
-            sudo apt-get install -y libicu-dev enscript moreutils pdftk libmysqlclient-dev libsqlite3-dev
+            sudo apt-get install -y libicu-dev enscript moreutils pdftk libmysqlclient-dev libsqlite3-dev tidy
             sudo mv /usr/bin/gnu_parallel /usr/bin/parallel
 
       # restore gems cache
