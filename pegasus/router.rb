@@ -374,11 +374,19 @@ class Documents < Sinatra::Base
       dirs ||= Dir.children(content_dir).select {|file| Dir.exist?(content_dir(file))}
       dirs.map do |site|
         (settings.template_extnames - ['.fetch']).map do |ext|
-          public = content_dir(site, 'public')
-          Dir.glob("#{public}/**/*#{ext}").map do |file|
+          site_glob = site_sub = content_dir(site, 'public')
+
+          if site == 'hourofcode.com'
+            # hourofcode.com has custom logic to include
+            # optional `/i18n` folder in its file-search path.
+            site_glob.sub!(site, "{#{site},#{site}/i18n}")
+            site_sub = /#{content_dir(site)}(\/i18n)?\/public/
+          end
+
+          Dir.glob("#{site_glob}/**/*#{ext}").map do |file|
             # Reduce file to URI.
             uri = file.
-              sub(public, '').
+              sub(site_sub, '').
               sub(/#{File.extname(file)}$/, '').
               sub(/\/index$/, '')
             next if uri.start_with?('/private')
