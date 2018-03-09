@@ -20,7 +20,7 @@ module Rack
       @app = app
 
       @content_types = options[:content_types] || ['text/html']
-      @min_length = options[:min_length] || 0
+      @min_length = options[:min_length] || 1024
       @skip_if = options[:skip_if]
       @include = options[:include]
       @exclude = options[:exclude]
