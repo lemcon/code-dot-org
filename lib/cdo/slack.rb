@@ -148,6 +148,22 @@ class Slack
     end
   end
 
+  # For more information see
+  # https://github.com/ErikKalkoken/slackApiDoc/blob/master/chat.command.md.
+  # @param channel_id [String] Id of the Slack channel to post the command to.
+  # You can find the channel id at the end of the url for a given channel using
+  # Slack in the browser, e.g https://codedotorg.slack.com/messages/<channel_id>
+  # @param command [String] Command to execute, excluding the /.
+  # @param message [String] Optional text passed to the command.
+  def self.command(channel_id, command, message="")
+    open(
+      "https://slack.com/api/chat.command?channel=#{channel_id}"\
+      "&command=/#{command}"\
+      "&text=#{message}"\
+      "&token=#{SLACK_TOKEN}"
+    )
+  end
+
   def self.snippet(room, text)
     # omit leading '#' when passing channel names to this API
     channel = CHANNEL_MAP[room] || room
