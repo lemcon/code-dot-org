@@ -286,7 +286,13 @@ class Documents < Sinatra::Base
       original_line_count = content.lines.count
       match = content.match(/\A(?<yaml>---\s*\n.*?\n?)^(---\s*$\n?)/m)
       if match
-        @header = @locals[:header] = YAML.load(render_(match[:yaml], '.erb'))
+        begin
+          yaml = render_(match[:yaml], '.erb')
+          @header = @locals[:header] = YAML.load(yaml)
+        rescue => e
+          e.message += "\n#{yaml}"
+          raise
+        end
         content = match.post_match
       end
       line_number_offset = content.lines.count - original_line_count
@@ -318,6 +324,9 @@ class Documents < Sinatra::Base
         end
         raise e
       end
+    rescue => e
+      e.set_backtrace e.backtrace.unshift(path)
+      raise
     end
 
     def preprocess_markdown(markdown_content)
