@@ -4,6 +4,9 @@ require 'helpers/auth_helpers'
 require 'cdo/rack/request'
 require 'parallel'
 require 'open3'
+require 'digest'
+require 'yaml'
+require 'tempfile'
 
 class TestDocuments < Documents
   configure do
@@ -63,7 +66,7 @@ class PegasusTest < Minitest::Test
   }
 
   # All documents expected to return 'text/html' content-type, with the following exceptions:
-  CONTENT_EXCEPTIONS = {
+  CONTENT_TYPE_EXCEPTIONS = {
     'text/plain' => %w[
       code.org/health_check
       code.org/robots.txt
@@ -85,6 +88,28 @@ class PegasusTest < Minitest::Test
     ]
   }
 
+  # All documents expected to have unchanged content between runs, with the following exceptions:
+  # (TODO: remove random elements from these pages.)
+  CONTENT_CHANGE_EXCEPTIONS = %w[
+    code.org
+    code.org/about
+    code.org/about/jobs
+    code.org/athletes
+    code.org/congrats
+    code.org/educate/curriculum/elementary-school
+    code.org/educate/curriculum/high-school
+    code.org/educate/curriculum/middle-school
+    code.org/educate/resources/inspire
+    code.org/educate/resources/videos
+    code.org/learn/robotics
+    code.org/minecraft
+    code.org/playlab
+    code.org/promote
+    code.org/starwars
+    code.org/leaderboards
+    code.org/page_mode
+  ]
+
   def test_render_pegasus_documents
     all_documents = app.helpers.all_documents.reject do |page|
       # 'Splat' documents not yet handled.
@@ -98,7 +123,7 @@ class PegasusTest < Minitest::Test
     DB.disconnect
     DASHBOARD_DB.disconnect
 
-    errors = Parallel.map(all_documents) do |page|
+    results = Parallel.map(all_documents) do |page|
       site = page[:site]
       uri = page[:uri]
       url = "#{site}#{uri}"
@@ -121,17 +146,43 @@ class PegasusTest < Minitest::Test
             next "[#{url}] HTML validation failed:\n#{errors.join}"
           end
         else
-          exceptions = CONTENT_EXCEPTIONS[content_type] || []
+          exceptions = CONTENT_TYPE_EXCEPTIONS[content_type] || []
           next "[#{url}] returned invalid Content-Type #{content_type}" unless exceptions.include?(url)
         end
       else
         exceptions = STATUS_EXCEPTIONS[status] || []
         next "[#{url}] returned invalid status #{status}" unless exceptions.include?(url)
       end
-      nil
-    end.compact
-
+      {url => response.body}
+    end
+    errors, pages = results.partition {|result| result.is_a?(String)}
     assert_equal 0, errors.length, "Page rendering errors:\n#{errors.join("\n\n")}"
+
+    pages = pages.reduce(:merge).sort.to_h
+    routes_file = cache_dir('pegasus_routes.yml.gz')
+    if File.exist?(routes_file)
+      old_routes = YAML.load(Zlib::GzipReader.new(File.open(routes_file)).read)
+      diffs = (pages.to_a - old_routes.to_a).to_h.keys - CONTENT_CHANGE_EXCEPTIONS
+      if diffs.any?
+        diff_outputs = diffs.map do |diff|
+          # Run test with `DIFF=1` to output line-by-line differences via `diff`.
+          next diff unless ENV['DIFF']
+          diff_output = Tempfile.open('a') do |a|
+            Tempfile.open('b') do |b|
+              File.write(a, pages[diff])
+              File.write(b, old_routes[diff])
+              `diff #{a.path} #{b.path}`
+            end
+          end
+          "---\n#{diff}:\n---\n#{diff_output}"
+        end
+        warn "Changed routes:\n\n#{diff_outputs.join("\n")}"
+      end
+    end
+    if ENV['SAVE_DIFF']
+      Zlib::GzipWriter.open(routes_file) {|gz| gz.write(YAML.dump(pages))}
+      puts "Saved rendered Pegasus routes to disk."
+    end
   end
 
   # Runs `tidy` in a subprocess to validate HTML content.
