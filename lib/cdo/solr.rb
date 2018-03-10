@@ -57,7 +57,7 @@ module Solr
         response = JSON.parse(response.body)['response']
         [response['start'].to_i, response['numFound'].to_i, response['docs']]
       rescue
-        raise unless rack_env?(:test)
+        raise unless rack_env?(:test).tap {|x| puts "Rack env: #{rack_env}, test? #{x}"}
         # Empty-response fallback for test environment where Solr service may not be running.
         [0, 0, []]
       end
