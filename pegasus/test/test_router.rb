@@ -46,7 +46,7 @@ class PegasusTest < Minitest::Test
     assert_operator documents.length, :>, 2000
   end
 
-  # All pages should return 200 status-code, with the following exceptions:
+  # All documents expected to return 200 status-codes, with the following exceptions:
   STATUS_EXCEPTIONS = {
     302 => %w[
       code.org/educate
@@ -61,7 +61,8 @@ class PegasusTest < Minitest::Test
       code.org/create-company-profile
     ]
   }
-  # All pages expected to return 'text/html' content-type, with the following exceptions:
+
+  # All documents expected to return 'text/html' content-type, with the following exceptions:
   CONTENT_EXCEPTIONS = {
     'text/plain' => %w[
       code.org/health_check
@@ -86,26 +87,38 @@ class PegasusTest < Minitest::Test
 
   def test_render_pegasus_documents
     all_documents = app.helpers.all_documents.reject do |page|
+      # 'Splat' documents not yet handled.
       page[:uri].end_with?('/splat')
     end
+
+    tidy = system('which tidy >- 2>-')
+    warn '`tidy` not found, skipping HTML validation.' unless tidy
+
+    # Disconnect databases before forking parallel processes.
     DB.disconnect
     DASHBOARD_DB.disconnect
+
     errors = Parallel.map(all_documents) do |page|
       site = page[:site]
       uri = page[:uri]
       url = "#{site}#{uri}"
       header 'host', site
-      response = get(uri)
+      response = begin
+        get(uri)
+      rescue Exception => e
+        # Filter backtrace from current location.
+        index = e.backtrace.index(caller(2..2).first)
+        e.set_backtrace(e.backtrace[0..index - 1])
+        next "[#{url}] Render failed:\n#{e}\n#{e.backtrace.join("\n")}"
+      end
       status = response.status
 
       if status == 200
         content_type = response.headers['Content-Type'].split(';', 2).first.downcase
         if content_type == 'text/html'
           # Ensure HTML is valid.
-          status, result = validate(response.body)
-          if status == 2
-            errors = result.lines.select {|line| line =~ /Error:/}.join
-            next "[#{url}] HTML validation failed:\n#{errors}"
+          if tidy && (errors = validate(response.body))
+            next "[#{url}] HTML validation failed:\n#{errors.join}"
           end
         else
           exceptions = CONTENT_EXCEPTIONS[content_type] || []
@@ -118,14 +131,11 @@ class PegasusTest < Minitest::Test
       nil
     end.compact
 
-    assert_equal 0, errors.length, "Page rendering errors:\n#{errors.join("\n")}"
+    assert_equal 0, errors.length, "Page rendering errors:\n#{errors.join("\n\n")}"
   end
 
   # Runs `tidy` in a subprocess to validate HTML content.
-  # Status codes:
-  # 0 on successful validation
-  # 1 if warnings are present
-  # 2 if errors are present
+  # Returns an array of error messages, or `nil` if no errors.
   def validate(body)
     cmd = 'tidy -q -e'
     status, result = nil
@@ -135,6 +145,13 @@ class PegasusTest < Minitest::Test
       result = stderr.read
       status = wait_thread.value.exitstatus
     end
-    [status, result]
+
+    # Status codes:
+    # 0 on successful validation
+    # 1 if warnings are present
+    # 2 if errors are present
+    if status == 2
+      result.lines.select {|line| line =~ /Error:/}
+    end
   end
 end
